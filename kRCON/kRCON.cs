@@ -20,11 +20,11 @@ using SDG.Unturned;
 using UnityEngine;
 using SDG;
 
-namespace kRCON
+namespace kRCONPlugin
 {
-    public class kRCONPlugin : RocketPlugin<kRCONConfig>
+    public class kRCON : RocketPlugin<kRCONConfig>
     {
-        public static kRCONPlugin dis;
+        public static kRCON dis;
         kRCONCore rcon = null;
         public List<string> docommand = new List<string>() { };
         public static ConsoleWriter __console;
@@ -45,10 +45,23 @@ namespace kRCON
             Rocket.Unturned.Logging.Logger.Log("kRCON is set to enabled.");
             Rocket.Unturned.Logging.Logger.Log("Initializing....");
 
-            rcon = new kRCONCore(this.Configuration.Port, this.Configuration.Password, this.Configuration.BindIP, this.Configuration.WhitelistIPs);
+            int maxcons;
+            if (this.Configuration.maxconnections > 50 || this.Configuration.maxconnections < 1)
+                maxcons = 5;
+            else
+                maxcons = this.Configuration.maxconnections;
+
+            rcon = new kRCONCore(
+                this.Configuration.Port, 
+                this.Configuration.Password, 
+                this.Configuration.BindIP, 
+                this.Configuration.maxconnections, 
+                this.Configuration.WhitelistIPs
+                );
             if(rcon.Enabled)
             {
                 Rocket.Unturned.Logging.Logger.Log("Loaded!");
+                Rocket.Unturned.Logging.Logger.Log("Maximum connections set to " + maxcons);
             }
             else
             {
@@ -72,9 +85,9 @@ namespace kRCON
                     //rcon.Send(leclient, e.Value + "\r\n");
                     foreach(var str in param)
                     {
-                        rcon.Send(leclient, str + "\r\n");
+                        leclient.Send(str + "\r\n");
                     }
-                    rcon.Send(leclient, "\r\n");
+                    leclient.Send("\r\n");
                 }
             }
         }

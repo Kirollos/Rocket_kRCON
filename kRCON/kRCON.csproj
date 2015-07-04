@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Console.cs" />
     <Compile Include="kRCON.cs" />
+    <Compile Include="kRCONClient.cs" />
     <Compile Include="kRCONConfiguration.cs" />
     <Compile Include="kRCONCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

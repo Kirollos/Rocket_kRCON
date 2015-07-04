@@ -20,7 +20,7 @@ using SDG.Unturned;
 using UnityEngine;
 using SDG;
 
-namespace kRCON
+namespace kRCONPlugin
 {
     public class kRCONCore
     {
@@ -29,20 +29,19 @@ namespace kRCON
         public string Password;
         public string BindIP;
         public List<kRCON_WhitelistIP> WhitelistIPs;
-        public List<TcpClient> Clients;
+        //public List<TcpClient> Clients;
+        public List<kRCONClient> Clients;
         public Thread _thread;
 
         public TcpListener _listener;
 
-        private byte[] __Readd = new byte[1024];
-
-        public kRCONCore(short port, string password, string bindip, List<kRCON_WhitelistIP> wips)
+        public kRCONCore(short port, string password, string bindip, int maxcon, List<kRCON_WhitelistIP> wips)
         {
             Port = port;
             Password = password;
             BindIP = bindip;
             WhitelistIPs = wips;
-            Clients = new List<TcpClient>() { };
+            Clients = new List<kRCONClient>() { };
             Enabled = true;
 
             _listener = new TcpListener(IPAddress.Parse(bindip), port);
@@ -50,46 +49,64 @@ namespace kRCON
             {
                 _listener.Start();
                 //Thread.Sleep(5000);
-                while(!kRCONPlugin.dis.ready)
+                while(!kRCON.dis.ready)
                 {
                 }
                 while(Enabled)
                 {
                     Enabled = true;
+                    if(this.Clients.Count >= maxcon)
+                    {
+                        Rocket.Unturned.Logging.Logger.Log("Cannot accept more connections.");
+                        while(this.Clients.Count >= maxcon && this.Enabled)
+                        {
+
+                        }
+                    }
                     Rocket.Unturned.Logging.Logger.Log("***kRCON*** Waiting for new connection...");
-                    TcpClient newclient = _listener.AcceptTcpClient();
+                    //TcpClient newclient = _listener.AcceptTcpClient();
+                    kRCONClient newclient = new kRCONClient(_listener.AcceptTcpClient(), this);
 
                     Clients.Add(newclient);
+                    //Clients.Add(new kRCONClient(newclient, this));
 
-                    Rocket.Unturned.Logging.Logger.Log("***kRCON*** A new client has connected! (IP: " + newclient.Client.RemoteEndPoint + ")...");
+                    Rocket.Unturned.Logging.Logger.Log("***kRCON*** A new client has connected! (IP: " + newclient.client.Client.RemoteEndPoint + ")...");
+
+                    newclient.Send( 
+                        "Welcome to your server's RCON. Server title: " + Steam.serverName + "\r\n" +
+                        "Please identify using command \"identify\"\r\n"
+                        );
+
+                    newclient.SendThread(() => { 
                     
-                    string command = "";
+                        string command = "";
 
-                    while(newclient.Client.Connected)
-                    {
-                        Thread.Sleep(100);
-                        new ConsoleInput().redrawInputLine();
-                        command = this.Read(newclient);
-                        command = command.TrimEnd(new[] { '\n', '\r', ' ' });
-                        /*this.Send(newclient, Convert.ToString(System.Convert.ToChar(8)));
-                        this.Send(newclient, Convert.ToString(System.Convert.ToChar(27)));
-                        this.Send(newclient, "[2K");
-                        this.Send(newclient, "\r\n");
-                        this.Send(newclient, Convert.ToString(System.Convert.ToChar(27)));
-                        this.Send(newclient, "[1A");
-                        this.Send(newclient, ">"+command+"\r\n");*/
-                        this.Send(newclient, kRCONUtils.Console_Redrawcommand(command));
-                        if (command == "quit") break;
-                        if (command == "") continue;
-                        kRCONPlugin.dis.docommand.Add(command);
-                        command = "";
-                    }
+                        while(newclient.client.Client.Connected)
+                        {
+                            Thread.Sleep(100);
+                            new ConsoleInput().redrawInputLine();
+                            command = newclient.Read();
+                            command = command.TrimEnd(new[] { '\n', '\r', ' ' });
+                            /*this.Send(newclient, Convert.ToString(System.Convert.ToChar(8)));
+                            this.Send(newclient, Convert.ToString(System.Convert.ToChar(27)));
+                            this.Send(newclient, "[2K");
+                            this.Send(newclient, "\r\n");
+                            this.Send(newclient, Convert.ToString(System.Convert.ToChar(27)));
+                            this.Send(newclient, "[1A");
+                            this.Send(newclient, ">"+command+"\r\n");*/
+                            newclient.Send(kRCONUtils.Console_Redrawcommand(command));
+                            if (command == "quit") break;
+                            if (command == "") continue;
+                            kRCON.dis.docommand.Add(command);
+                            command = "";
+                        }
 
-                    Clients.Remove(newclient);
-                    this.Send(newclient, "Good bye!");
-                    Thread.Sleep(1500);
-                    Rocket.Unturned.Logging.Logger.Log("***kRCON*** A Client has disconnected! (IP: " + newclient.Client.RemoteEndPoint + ")");
-                    newclient.Close();
+                        Clients.Remove(newclient);
+                        newclient.Send("Good bye!");
+                        Thread.Sleep(1500);
+                        Rocket.Unturned.Logging.Logger.Log("***kRCON*** A Client has disconnected! (IP: " + newclient.client.Client.RemoteEndPoint + ")");
+                        newclient.Close();
+                    });
                 }
                 Enabled = false;
             });
@@ -101,10 +118,6 @@ namespace kRCON
             this.Enabled = false;
             this._thread.Abort();
             this._listener.Stop();
-        }
-
-        public void dowork()
-        {
         }
 
         public string Read(TcpClient client)

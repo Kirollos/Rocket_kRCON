@@ -20,7 +20,7 @@ using SDG.Unturned;
 using UnityEngine;
 using SDG;
 
-namespace kRCON
+namespace kRCONPlugin
 {
     /*
      * Borrowed idea from (http://stackoverflow.com/questions/11911660/redirect-console-writeline-from-windows-application-to-a-string)

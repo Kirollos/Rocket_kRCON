@@ -20,7 +20,7 @@ using SDG.Unturned;
 using UnityEngine;
 using SDG;
 
-namespace kRCON
+namespace kRCONPlugin
 {
     public class kRCONConfig : IRocketPluginConfiguration
     {
@@ -28,6 +28,7 @@ namespace kRCON
         public short Port;
         public string Password;
         public string BindIP;
+        public int maxconnections;
         [XmlArrayItem(ElementName = "WhitelistIP")]
         public List<kRCON_WhitelistIP> WhitelistIPs;
         
@@ -41,6 +42,7 @@ namespace kRCON
                     Port = 0,
                     Password = "changeme",
                     BindIP = "0.0.0.0",
+                    maxconnections = 5,
                     WhitelistIPs = new List<kRCON_WhitelistIP>() {}
                 };
             }
