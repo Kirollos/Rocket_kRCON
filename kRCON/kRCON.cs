@@ -39,6 +39,8 @@ namespace kRCON
                 Rocket.Unturned.Logging.Logger.Log("kRCON is set to disabled.");
                 return;
             }
+
+            Rocket.Unturned.Events.RocketServerEvents.OnServerShutdown += RocketServerEvents_OnServerShutdown;
             
             Rocket.Unturned.Logging.Logger.Log("kRCON is set to enabled.");
             Rocket.Unturned.Logging.Logger.Log("Initializing....");
@@ -58,6 +60,7 @@ namespace kRCON
             Console.SetOut(__console);
             return;
         }
+
 
         void __console_WriteLineEvent(object sender, ConsoleWriterEventArgs e)
         {
@@ -82,6 +85,11 @@ namespace kRCON
             {
                 rcon.Destruct();
             }
+        }
+
+        void RocketServerEvents_OnServerShutdown()
+        {
+            this.Unload();
         }
 
         public void FixedUpdate()

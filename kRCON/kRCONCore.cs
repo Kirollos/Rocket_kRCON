@@ -88,6 +88,7 @@ namespace kRCON
                     Clients.Remove(newclient);
                     this.Send(newclient, "Good bye!");
                     Thread.Sleep(1500);
+                    Rocket.Unturned.Logging.Logger.Log("***kRCON*** A Client has disconnected! (IP: " + newclient.Client.RemoteEndPoint + ")");
                     newclient.Close();
                 }
                 Enabled = false;
@@ -99,6 +100,7 @@ namespace kRCON
         {
             this.Enabled = false;
             this._thread.Abort();
+            this._listener.Stop();
         }
 
         public void dowork()
