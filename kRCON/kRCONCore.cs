@@ -74,7 +74,7 @@ namespace kRCONPlugin
 
                     newclient.Send( 
                         "Welcome to your server's RCON. Server title: " + Steam.serverName + "\r\n" +
-                        "Please identify using command \"identify\"\r\n"
+                        "Please login using command \"login\"\r\n"
                         );
 
                     newclient.SendThread(() => { 
@@ -97,6 +97,33 @@ namespace kRCONPlugin
                             newclient.Send(kRCONUtils.Console_Redrawcommand(command));
                             if (command == "quit") break;
                             if (command == "") continue;
+                            if (command.Split(new[] { ' ' }).Length > 1 && command.Split(new[] { ' ' })[0] == "login")
+                            {
+                                if(newclient.identified)
+                                {
+                                    newclient.Send("Notice: You are already logged in!\r\n");
+                                    continue;
+                                }
+                                else
+                                {
+                                    if(command.Split(new[]{' '})[1] == this.Password)
+                                    {
+                                        newclient.identified = true;
+                                        newclient.Send("Success: You have logged in!\r\n");
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        newclient.Send("Error: Invalid password!\r\n");
+                                        break;
+                                    }
+                                }
+                            }
+                            if(!newclient.identified)
+                            {
+                                newclient.Send("Error: You have not logged in yet!\r\n");
+                                continue;
+                            }
                             kRCON.dis.docommand.Add(command);
                             command = "";
                         }
