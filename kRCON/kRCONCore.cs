@@ -84,7 +84,6 @@ namespace kRCONPlugin
                         while(newclient.client.Client.Connected)
                         {
                             Thread.Sleep(100);
-                            new ConsoleInput().redrawInputLine();
                             command = newclient.Read();
                             command = command.TrimEnd(new[] { '\n', '\r', ' ' });
                             /*this.Send(newclient, Convert.ToString(System.Convert.ToChar(8)));
@@ -97,6 +96,14 @@ namespace kRCONPlugin
                             newclient.Send(kRCONUtils.Console_Redrawcommand(command));
                             if (command == "quit") break;
                             if (command == "") continue;
+                            if(command == "login")
+                            {
+                                if (newclient.identified)
+                                    newclient.Send("Notice: You are already logged in!\r\n");
+                                else
+                                    newclient.Send("Syntax: login <password>");
+                                continue;
+                            }
                             if (command.Split(new[] { ' ' }).Length > 1 && command.Split(new[] { ' ' })[0] == "login")
                             {
                                 if(newclient.identified)
