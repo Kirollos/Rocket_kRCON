@@ -29,11 +29,19 @@ namespace kRCONPlugin
         public kRCONCore listenerc;
         public Thread rthread;
 
+        public Dictionary<string, object> options;
+
         public kRCONClient(TcpClient _client, kRCONCore _core)
         {
             client = _client;
             listenerc = _core;
             identified = false;
+
+            options = new Dictionary<string, object>()
+            {
+                {"colours", "true"},
+
+            };
         }
 
         public void SendThread(ThreadStart watdo)

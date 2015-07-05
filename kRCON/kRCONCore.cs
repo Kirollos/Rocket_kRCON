@@ -131,6 +131,29 @@ namespace kRCONPlugin
                                 newclient.Send("Error: You have not logged in yet!\r\n");
                                 continue;
                             }
+                            if(command == "set")
+                            {
+                                newclient.Send("Syntax: set [option] [value]");
+                                continue;
+                            }
+                            if (command.Split(new[] { ' ' }).Length > 1 && command.Split(new[] { ' ' })[0] == "set")
+                            {
+                                string[] args = command.Split(new[] { ' ' });
+                                if(args.Length != 3)
+                                {
+                                    newclient.Send("Syntax: set [option] [value]");
+                                    continue;
+                                }
+
+                                if(!newclient.options.ContainsKey(args[1]))
+                                {
+                                    newclient.Send("Error: option unknown.");
+                                    continue;
+                                }
+                                newclient.options[args[1]] = args[2];
+                                newclient.Send("Success: '"+args[1]+"' set to '"+args[2]+"'.");
+                                continue;
+                            }
                             kRCON.dis.docommand.Add(command);
                             command = "";
                         }
