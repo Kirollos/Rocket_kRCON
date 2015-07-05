@@ -48,7 +48,9 @@ namespace kRCONPlugin
         {
             if (WriteEvent != null) WriteEvent(this, new ConsoleWriterEventArgs(value));
             //base.Write(value);
-            stdout.Write(value);
+            stdout.Write(value.Trim());
+            if (String.IsNullOrEmpty(value.Trim()))
+                stdout.WriteLine();
         }
 
         public override void WriteLine(string value)

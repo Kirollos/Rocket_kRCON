@@ -57,20 +57,20 @@ namespace kRCONPlugin
                     Enabled = true;
                     if(this.Clients.Count >= maxcon)
                     {
-                        Rocket.Unturned.Logging.Logger.Log("Cannot accept more connections.");
+                        kRCONUtils.Rocket_Log("Cannot accept more connections.");
                         while(this.Clients.Count >= maxcon && this.Enabled)
                         {
 
                         }
                     }
-                    Rocket.Unturned.Logging.Logger.Log("***kRCON*** Waiting for new connection...");
+                    kRCONUtils.Rocket_Log("Waiting for new connection...");
                     //TcpClient newclient = _listener.AcceptTcpClient();
                     kRCONClient newclient = new kRCONClient(_listener.AcceptTcpClient(), this);
 
                     Clients.Add(newclient);
                     //Clients.Add(new kRCONClient(newclient, this));
 
-                    Rocket.Unturned.Logging.Logger.Log("***kRCON*** A new client has connected! (IP: " + newclient.client.Client.RemoteEndPoint + ")...");
+                    kRCONUtils.Rocket_Log("A new client has connected! (IP: " + newclient.client.Client.RemoteEndPoint + ")...");
 
                     newclient.Send( 
                         "Welcome to your server's RCON. Server title: " + Steam.serverName + "\r\n" +
@@ -131,7 +131,7 @@ namespace kRCONPlugin
                         Clients.Remove(newclient);
                         newclient.Send("Good bye!");
                         Thread.Sleep(1500);
-                        Rocket.Unturned.Logging.Logger.Log("***kRCON*** A Client has disconnected! (IP: " + newclient.client.Client.RemoteEndPoint + ")");
+                        kRCONUtils.Rocket_Log("A Client has disconnected! (IP: " + newclient.client.Client.RemoteEndPoint + ")");
                         newclient.Close();
                     });
                 }
@@ -140,11 +140,20 @@ namespace kRCONPlugin
             _thread.Start();
         }
 
-        public void Destruct()
+        public int Destruct()
         {
             this.Enabled = false;
             this._thread.Abort();
+            int counter = this.Clients.Count;
+            foreach(var leclient in this.Clients)
+            {
+                leclient.Send("Good bye!");
+                Thread.Sleep(150);
+                leclient.Close();
+            }
+            this.Clients.Clear();
             this._listener.Stop();
+            return counter;
         }
 
         public string Read(TcpClient client)

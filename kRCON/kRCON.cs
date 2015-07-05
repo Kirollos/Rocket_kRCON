@@ -29,6 +29,7 @@ namespace kRCONPlugin
         public List<string> docommand = new List<string>() { };
         public static ConsoleWriter __console;
         public bool ready = false;
+        private TextWriter __stdout;
 
         protected override void Load()
         {
@@ -68,7 +69,9 @@ namespace kRCONPlugin
                 Rocket.Unturned.Logging.Logger.LogError("Failed!");
                 rcon.Destruct();
             }
+            __stdout = Console.Out;
             __console = new ConsoleWriter(Console.Out);
+            __console.WriteEvent += __console_WriteLineEvent;
             __console.WriteLineEvent += __console_WriteLineEvent;
             Console.SetOut(__console);
             return;
@@ -81,13 +84,17 @@ namespace kRCONPlugin
             {
                 foreach(var leclient in rcon.Clients)
                 {
-                    string[] param = e.Value.Trim(new[] { '\r', '\n' }).TrimEnd(new[] { '\t' }).Split(new[] { '\r', '\n' });
+                    string[] param = e.Value.Trim(new[] { '\r', '\n' }).TrimEnd(new[] { '\t' }).Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                     //rcon.Send(leclient, e.Value + "\r\n");
                     foreach(var str in param)
                     {
-                        leclient.Send(str + "\r\n");
+                        if (str.Contains("***kRCON***"))
+                            continue;
+                        //leclient.Send(str /*+ "\r\n"*/);
+                        leclient.Send(str.Trim(new[] { '\r', '\n' }).TrimEnd(new[] { '\t' }), true);
+                        leclient.Send("\r\n");
                     }
-                    leclient.Send("\r\n");
+                    //leclient.Send("\r\n");
                 }
             }
         }
@@ -96,7 +103,10 @@ namespace kRCONPlugin
         {
             if(rcon != null && rcon.Enabled)
             {
-                rcon.Destruct();
+                kRCONUtils.Rocket_Log("Force closed " + rcon.Destruct() + " connections!");
+                Rocket.Unturned.Events.RocketServerEvents.OnServerShutdown -= RocketServerEvents_OnServerShutdown;
+                __console.WriteLineEvent -= __console_WriteLineEvent;
+                Console.SetOut(__stdout);
             }
         }
 
@@ -141,6 +151,12 @@ namespace kRCONPlugin
             _command += "[1A";
             _command += ">" + command + "\r\n";
             return _command;
+        }
+
+        public static void Rocket_Log(string text)
+        {
+            Rocket.Unturned.Logging.Logger.Log("***kRCON*** " + text);
+            return;
         }
     }
 }

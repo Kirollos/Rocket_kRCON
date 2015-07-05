@@ -42,9 +42,12 @@ namespace kRCONPlugin
             rthread.Start();
         }
 
-        public void Send(string command)
+        public void Send(string command, bool nonewline = false)
         {
-            listenerc.Send(client, command);
+            if(nonewline == true)
+                listenerc.Send(client, command);
+            else
+                listenerc.Send(client, command + ( !command.Contains('\n') ? "\r\n" : "" ));
             return;
         }
 
@@ -59,5 +62,9 @@ namespace kRCONPlugin
             this.rthread.Abort();
             return;
         }
+
+        public string IPPort { get { return this.client.Client.RemoteEndPoint.ToString(); } }
+        public string IP { get { return IPPort.Split(':')[0]; } }
+        public string Port { get { return IPPort.Split(':')[1]; } }
     }
 }
