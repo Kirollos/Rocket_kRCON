@@ -28,7 +28,7 @@ namespace kRCONPlugin
         public short Port;
         public string Password;
         public string BindIP;
-        public List<kRCON_WhitelistIP> WhitelistIPs;
+        public List<string> WhitelistIPs;
         //public List<TcpClient> Clients;
         public List<kRCONClient> Clients;
         public Thread _thread;
@@ -40,7 +40,14 @@ namespace kRCONPlugin
             Port = port;
             Password = password;
             BindIP = bindip;
-            WhitelistIPs = wips;
+            WhitelistIPs = new List<string>() { };
+            if (wips.Count > 0)
+            {
+                foreach (var ip in wips)
+                {
+                    WhitelistIPs.Add(ip.IP);
+                }
+            }
             Clients = new List<kRCONClient>() { };
             Enabled = true;
 
@@ -67,10 +74,19 @@ namespace kRCONPlugin
                     //TcpClient newclient = _listener.AcceptTcpClient();
                     kRCONClient newclient = new kRCONClient(_listener.AcceptTcpClient(), this);
 
+                    if(this.WhitelistIPs.Count > 0 && !this.WhitelistIPs.Contains(newclient.IP))
+                    {
+                        newclient.Send("Error: Your IP is not whitelisted.");
+                        Thread.Sleep(550);
+                        kRCONUtils.Rocket_Log(newclient.IPPort+" has failed to connect!");
+                        newclient.Close();
+                        continue;
+                    }
+
                     Clients.Add(newclient);
                     //Clients.Add(new kRCONClient(newclient, this));
 
-                    kRCONUtils.Rocket_Log("A new client has connected! (ID: #"+this.CID(newclient)+", IP: " + newclient.client.Client.RemoteEndPoint + ")...");
+                    kRCONUtils.Rocket_Log("A new client has connected! (ID: #"+this.CID(newclient)+", IP: " + newclient.IPPort + ")...");
 
                     newclient.Send( 
                         "Welcome to your server's RCON. \r\n" + 
