@@ -47,5 +47,14 @@ namespace kRCON_WindowsClient
             if(!Program._LoginBox.Visible)
                 Application.Exit();
         }
+
+        private void InputBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if(e.KeyChar == '\r')
+            {
+                Button_Send_Click(sender, null);
+                InputBox.Clear();
+            }
+        }
     }
 }

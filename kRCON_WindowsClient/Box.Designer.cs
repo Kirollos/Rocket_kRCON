@@ -46,11 +46,11 @@
             // 
             // InputBox
             // 
-            this.InputBox.Location = new System.Drawing.Point(13, 275);
-            this.InputBox.Multiline = true;
+            this.InputBox.Location = new System.Drawing.Point(12, 286);
             this.InputBox.Name = "InputBox";
-            this.InputBox.Size = new System.Drawing.Size(403, 40);
+            this.InputBox.Size = new System.Drawing.Size(403, 20);
             this.InputBox.TabIndex = 1;
+            this.InputBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.InputBox_KeyPress);
             // 
             // Button_Send
             // 
