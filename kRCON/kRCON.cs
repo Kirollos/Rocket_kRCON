@@ -53,7 +53,7 @@ namespace kRCONPlugin
                 maxcons = this.Configuration.maxconnections;
 
             rcon = new kRCONCore(
-                this.Configuration.Port, 
+                this.Configuration.Port == 0 ? (short)Steam.port : this.Configuration.Port, 
                 this.Configuration.Password, 
                 this.Configuration.BindIP, 
                 this.Configuration.maxconnections, 
@@ -62,6 +62,7 @@ namespace kRCONPlugin
             if(rcon.Enabled)
             {
                 Rocket.Unturned.Logging.Logger.Log("Loaded!");
+                Rocket.Unturned.Logging.Logger.Log("Using Port: " + (this.Configuration.Port == 0 ? (short)Steam.port : this.Configuration.Port));
                 Rocket.Unturned.Logging.Logger.Log("Maximum connections set to " + maxcons);
             }
             else
