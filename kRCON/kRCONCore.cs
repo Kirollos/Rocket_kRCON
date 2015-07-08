@@ -52,6 +52,8 @@ namespace kRCONPlugin
             Enabled = true;
 
             _listener = new TcpListener(IPAddress.Parse(bindip), port);
+            _listener.Server.ReceiveTimeout = 1000 * 60 * 10; // Setting receive timeout to 10 minutes.
+            Rocket.Unturned.Logging.Logger.Log("Setting receive timeout to " + _listener.Server.ReceiveTimeout + "ms");
             _thread = new Thread(() =>
             {
                 _listener.Start();
@@ -92,7 +94,8 @@ namespace kRCONPlugin
                         "Welcome to your server's RCON. \r\n" + 
                         "Connection #" + this.CID(newclient) + "\r\n" +
                         "Server title: \"" + Steam.serverName + "\"\r\n" +
-                        "Please login using command \"login\"\r\n"
+                        "Please login using command \"login\"\r\n" +
+                        "Notice: If you don't receive messages for approx " + _listener.Server.ReceiveTimeout/1000/60 +" minutes, you will be automatically disconnected."
                         );
 
                     newclient.SendThread(() => { 
@@ -103,6 +106,7 @@ namespace kRCONPlugin
                         {
                             Thread.Sleep(100);
                             command = newclient.Read();
+                            if (command == "") break;
                             command = command.TrimEnd(new[] { '\n', '\r', ' ' });
                             /*this.Send(newclient, Convert.ToString(System.Convert.ToChar(8)));
                             this.Send(newclient, Convert.ToString(System.Convert.ToChar(27)));
