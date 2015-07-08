@@ -29,7 +29,7 @@ namespace kRCONPlugin
         public kRCONCore listenerc;
         public Thread rthread;
 
-        public Dictionary<string, object> options;
+        public Dictionary<string, string> options;
 
         public kRCONClient(TcpClient _client, kRCONCore _core)
         {
@@ -37,10 +37,10 @@ namespace kRCONPlugin
             listenerc = _core;
             identified = false;
 
-            options = new Dictionary<string, object>()
+            options = new Dictionary<string, string>()
             {
                 {"colours", "true"},
-
+                {"redrawcmd", "true"}
             };
         }
 

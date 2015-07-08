@@ -111,7 +111,8 @@ namespace kRCONPlugin
                             this.Send(newclient, Convert.ToString(System.Convert.ToChar(27)));
                             this.Send(newclient, "[1A");
                             this.Send(newclient, ">"+command+"\r\n");*/
-                            newclient.Send(kRCONUtils.Console_Redrawcommand(command));
+                            if(newclient.options["redrawcmd"] == "true")
+                                newclient.Send(kRCONUtils.Console_Redrawcommand(command));
                             if (command == "quit") break;
                             if (command == "") continue;
                             if(command == "login")
@@ -146,11 +147,7 @@ namespace kRCONPlugin
                                     }
                                 }
                             }
-                            if(!newclient.identified)
-                            {
-                                newclient.Send("Error: You have not logged in yet!\r\n");
-                                continue;
-                            }
+                            
                             if(command == "set")
                             {
                                 newclient.Send("Syntax: set [option] [value]");
@@ -172,6 +169,11 @@ namespace kRCONPlugin
                                 }
                                 newclient.options[args[1]] = args[2];
                                 newclient.Send("Success: '"+args[1]+"' set to '"+args[2]+"'.");
+                                continue;
+                            }
+                            if(!newclient.identified)
+                            {
+                                newclient.Send("Error: You have not logged in yet!\r\n");
                                 continue;
                             }
                             kRCONUtils.Rocket_Log("Client #" + this.CID(newclient) + " has executed command \""+command+"\"");
