@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kRCON", "kRCON\kRCON.csproj", "{7E107540-4E65-448C-814F-EC5253BF7BC1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kRCON_WindowsClient", "kRCON_WindowsClient\kRCON_WindowsClient.csproj", "{15BBD42C-A8C4-4BAC-ACCF-F8B48330F2E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{7E107540-4E65-448C-814F-EC5253BF7BC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E107540-4E65-448C-814F-EC5253BF7BC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E107540-4E65-448C-814F-EC5253BF7BC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15BBD42C-A8C4-4BAC-ACCF-F8B48330F2E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15BBD42C-A8C4-4BAC-ACCF-F8B48330F2E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15BBD42C-A8C4-4BAC-ACCF-F8B48330F2E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15BBD42C-A8C4-4BAC-ACCF-F8B48330F2E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
