@@ -106,6 +106,7 @@ namespace kRCONPlugin
             {
                 kRCONUtils.Rocket_Log("Force closed " + rcon.Destruct() + " connections!");
                 Rocket.Unturned.Events.RocketServerEvents.OnServerShutdown -= RocketServerEvents_OnServerShutdown;
+                __console.WriteEvent -= __console_WriteLineEvent;
                 __console.WriteLineEvent -= __console_WriteLineEvent;
                 Console.SetOut(__stdout);
             }
