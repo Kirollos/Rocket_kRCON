@@ -62,7 +62,7 @@ sock.on('connection', function(socket){
 		rcon.write("set redrawcmd false\r\n"); // redrawing only works on actual consoles/terminals
 	});
 	rcon.on('data', function(data){
-		socket.emit('on-receive', {resp: String.fromCharCode.apply(null, new Uint32Array(data)).trim()});
+		socket.emit('on-receive', {resp: data.toString('utf8').trim()});
 	});
 	rcon.on('close', function(data){
 		socket.emit('rip');
