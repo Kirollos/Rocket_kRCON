@@ -89,6 +89,7 @@ namespace kRCONPlugin
                     //rcon.Send(leclient, e.Value + "\r\n");
                     foreach(var str in param)
                     {
+                        if (!leclient.identified) continue;
                         if (str.Contains("***kRCON***"))
                             continue;
                         //leclient.Send(str /*+ "\r\n"*/);
