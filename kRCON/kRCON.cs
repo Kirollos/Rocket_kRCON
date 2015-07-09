@@ -141,15 +141,13 @@ namespace kRCONPlugin
 
     public class kRCONUtils
     {
-        public static string Console_Redrawcommand(string command) // Works on putty, don't know about others.
+        public static string Console_Redrawcommand(string command) // Works on putty and windows telnet client, don't know about others.
         {
             string _command = "";
-            _command += Convert.ToString(System.Convert.ToChar(8));
-            _command += Convert.ToString(System.Convert.ToChar(27));
-            _command += "[2K";
-            _command += "\r\n";
             _command += Convert.ToString(System.Convert.ToChar(27));
             _command += "[1A";
+            _command += Convert.ToString(System.Convert.ToChar(27));
+            _command += "[2K";
             _command += ">" + command + "\r\n";
             return _command;
         }

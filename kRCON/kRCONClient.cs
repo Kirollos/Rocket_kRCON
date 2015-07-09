@@ -28,7 +28,8 @@ namespace kRCONPlugin
         public bool identified;
         public kRCONCore listenerc;
         public Thread rthread;
-
+        public int uniqueID = -1;
+        
         public Dictionary<string, string> options;
 
         public kRCONClient(TcpClient _client, kRCONCore _core)
@@ -39,7 +40,7 @@ namespace kRCONPlugin
 
             options = new Dictionary<string, string>()
             {
-                {"colours", "true"},
+                //{"colours", "true"}, // Won't even going to bother adding it for now
                 {"redrawcmd", "true"}
             };
         }

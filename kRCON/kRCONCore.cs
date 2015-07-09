@@ -84,18 +84,19 @@ namespace kRCONPlugin
                         newclient.Close();
                         continue;
                     }
-
+                    
                     Clients.Add(newclient);
+                    newclient.uniqueID = Clients.IndexOf(newclient);
                     //Clients.Add(new kRCONClient(newclient, this));
 
-                    kRCONUtils.Rocket_Log("A new client has connected! (ID: #"+this.CID(newclient)+", IP: " + newclient.IPPort + ")...");
+                    kRCONUtils.Rocket_Log("A new client has connected! (ID: #" + newclient.uniqueID + ", IP: " + newclient.IPPort + ")...");
 
                     newclient.Send( 
-                        "Welcome to your server's RCON. \r\n" + 
-                        "Connection #" + this.CID(newclient) + "\r\n" +
+                        "Welcome to your server's RCON. \r\n" +
+                        "Connection #" + newclient.uniqueID + "\r\n" +
                         "Server title: \"" + Steam.serverName + "\"\r\n" +
                         "Please login using command \"login\"\r\n" +
-                        "Notice: If you don't receive messages for approx " + _listener.Server.ReceiveTimeout/1000/60 +" minutes, you will be automatically disconnected."
+                        "Notice: If you don't receive messages for approx " + _listener.Server.ReceiveTimeout/1000/60 +" minutes, you will be automatically disconnected.\r\n"
                         );
 
                     newclient.SendThread(() => { 
@@ -140,13 +141,13 @@ namespace kRCONPlugin
                                     {
                                         newclient.identified = true;
                                         newclient.Send("Success: You have logged in!\r\n");
-                                        kRCONUtils.Rocket_Log("Client #" + this.CID(newclient) + " has logged in!");
+                                        kRCONUtils.Rocket_Log("Client #" + newclient.uniqueID + " has logged in!");
                                         continue;
                                     }
                                     else
                                     {
                                         newclient.Send("Error: Invalid password!\r\n");
-                                        kRCONUtils.Rocket_Log("Client #" + this.CID(newclient) + " has failed to log in.");
+                                        kRCONUtils.Rocket_Log("Client #" + newclient.uniqueID + " has failed to log in.");
                                         break;
                                     }
                                 }
@@ -180,7 +181,7 @@ namespace kRCONPlugin
                                 newclient.Send("Error: You have not logged in yet!\r\n");
                                 continue;
                             }
-                            kRCONUtils.Rocket_Log("Client #" + this.CID(newclient) + " has executed command \""+command+"\"");
+                            kRCONUtils.Rocket_Log("Client #" + newclient.uniqueID + " has executed command \"" + command + "\"");
                             kRCON.dis.docommand.Add(command);
                             command = "";
                         }
@@ -188,7 +189,7 @@ namespace kRCONPlugin
                         Clients.Remove(newclient);
                         newclient.Send("Good bye!");
                         Thread.Sleep(1500);
-                        kRCONUtils.Rocket_Log("Client #"+this.CID(newclient)+" has disconnected! (IP: " + newclient.client.Client.RemoteEndPoint + ")");
+                        kRCONUtils.Rocket_Log("Client #" + newclient.uniqueID + " has disconnected! (IP: " + newclient.client.Client.RemoteEndPoint + ")");
                         newclient.Close();
                     });
                 }
@@ -245,8 +246,6 @@ namespace kRCONPlugin
 
             client.GetStream().Write(data, 0, text.Length);
         }
-
-        public int CID(kRCONClient client) { return this.Clients.IndexOf(client); }
     }
     
 }
