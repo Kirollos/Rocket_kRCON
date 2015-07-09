@@ -57,9 +57,9 @@ var _config = require('./config.js').config;
 
 sock.on('connection', function(socket){
 	var rcon = new require('net').Socket();
-	
+	console.log("New connection from " + socket.handshake.address);
 	rcon.connect(_config.krcon_port, _config.krcon_ip, function(){
-
+		rcon.write("set redrawcmd false\r\n"); // redrawing only works on actual consoles/terminals
 	});
 	rcon.on('data', function(data){
 		socket.emit('on-receive', {resp: String.fromCharCode.apply(null, new Uint32Array(data)).trim()});
@@ -72,13 +72,14 @@ sock.on('connection', function(socket){
 		rcon = null;
 	});
 	socket.on('on-send', function(data){
-		console.log(data);
+		console.log("Client ("+socket.handshake.address+") has executed command '"+data.cmd+"'");
 		rcon.write(data.cmd + "\r\n");
 	});
 	socket.on('disconnect', function(data){
 		if(rcon != null) {
 			rcon.destroy();
 		}
+		console.log("Disconnected from " + socket.handshake.address);
 		rcon = null;
 	});
 });
