@@ -52,7 +52,7 @@ namespace kRCONPlugin
             Enabled = true;
 
             _listener = new TcpListener(IPAddress.Parse(bindip), port);
-            _listener.Server.ReceiveTimeout = 1000 * 60 * 10; // Setting receive timeout to 10 minutes.
+            _listener.Server.ReceiveTimeout = 1000 * 60 * kRCON.dis.Configuration.RecvTimeout; // Setting receive timeout to x minutes (0 for none).
             Rocket.Unturned.Logging.Logger.Log("Setting receive timeout to " + _listener.Server.ReceiveTimeout + "ms");
             _thread = new Thread(() =>
             {

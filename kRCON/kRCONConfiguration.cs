@@ -29,6 +29,8 @@ namespace kRCONPlugin
         public string Password;
         public string BindIP;
         public int maxconnections;
+        public byte RecvTimeout; // Guess no one would set timeout for more than 255 minutes
+                                    // 0 for none.
         [XmlArrayItem(ElementName = "WhitelistIP")]
         public List<kRCON_WhitelistIP> WhitelistIPs;
         
@@ -43,6 +45,7 @@ namespace kRCONPlugin
                     Password = "changeme",
                     BindIP = "0.0.0.0",
                     maxconnections = 5,
+                    RecvTimeout = 10,
                     WhitelistIPs = new List<kRCON_WhitelistIP>() {}
                 };
             }
