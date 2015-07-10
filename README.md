@@ -11,3 +11,6 @@ This project is still not finished and may be unstable.
 ![](http://i.imgur.com/udvr8DK.png)
 
 ![](http://i.imgur.com/cGp8hIc.png)
+
+Android using JuiceSSH's telnet:
+![](http://i.imgur.com/PNdq0ir.png)
