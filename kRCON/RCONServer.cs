@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Rocket.API;
 using Rocket.Unturned;
+using Rocket.Unturned.Logging;
 using Rocket.Unturned.Plugins;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
@@ -22,20 +23,19 @@ using SDG;
 
 namespace kRCONPlugin
 {
-    public class kRCONCore
+    public class RCONServer
     {
         public bool Enabled = false;
         public short Port;
         public string Password;
         public string BindIP;
         public List<string> WhitelistIPs;
-        //public List<TcpClient> Clients;
-        public List<kRCONClient> Clients;
+        public List<RCONConnection> Clients;
         public Thread _thread;
 
         public TcpListener _listener;
 
-        public kRCONCore(short port, string password, string bindip, int maxcon, List<kRCON_WhitelistIP> wips)
+        public RCONServer(short port, string password, string bindip, int maxcon, List<kRCON_WhitelistIP> wips)
         {
             Port = port;
             Password = password;
@@ -48,12 +48,13 @@ namespace kRCONPlugin
                     WhitelistIPs.Add(ip.IP);
                 }
             }
-            Clients = new List<kRCONClient>() { };
+            Clients = new List<RCONConnection>() { };
             Enabled = true;
 
             _listener = new TcpListener(IPAddress.Parse(bindip), port);
             _listener.Server.ReceiveTimeout = 1000 * 60 * kRCON.dis.Configuration.RecvTimeout; // Setting receive timeout to x minutes (0 for none).
-            Rocket.Unturned.Logging.Logger.Log("Setting receive timeout to " + _listener.Server.ReceiveTimeout + "ms");
+            if(_listener.Server.ReceiveTimeout > 0)
+                Logger.Log("Setting receive timeout to " + _listener.Server.ReceiveTimeout + "ms");
             _thread = new Thread(() =>
             {
                 _listener.Start();
@@ -73,8 +74,7 @@ namespace kRCONPlugin
                         }
                     }
                     kRCONUtils.Rocket_Log("Waiting for new connection...");
-                    //TcpClient newclient = _listener.AcceptTcpClient();
-                    kRCONClient newclient = new kRCONClient(_listener.AcceptTcpClient(), this);
+                    RCONConnection newclient = new RCONConnection(_listener.AcceptTcpClient(), this);
 
                     if(this.WhitelistIPs.Count > 0 && !this.WhitelistIPs.Contains(newclient.IP))
                     {
@@ -87,7 +87,6 @@ namespace kRCONPlugin
                     
                     Clients.Add(newclient);
                     newclient.uniqueID = Clients.IndexOf(newclient);
-                    //Clients.Add(new kRCONClient(newclient, this));
 
                     kRCONUtils.Rocket_Log("A new client has connected! (ID: #" + newclient.uniqueID + ", IP: " + newclient.IPPort + ")...");
 
@@ -96,7 +95,8 @@ namespace kRCONPlugin
                         "Connection #" + newclient.uniqueID + "\r\n" +
                         "Server title: \"" + Steam.serverName + "\"\r\n" +
                         "Please login using command \"login\"\r\n" +
-                        "Notice: If you don't receive messages for approx " + _listener.Server.ReceiveTimeout/1000/60 +" minutes, you will be automatically disconnected.\r\n"
+                        (_listener.Server.ReceiveTimeout == 0 ? "" :
+                        "Notice: If you don't receive messages for approx " + _listener.Server.ReceiveTimeout/1000/60 +" minutes, you will be automatically disconnected.\r\n")
                         );
 
                     newclient.SendThread(() => { 
@@ -109,13 +109,6 @@ namespace kRCONPlugin
                             command = newclient.Read();
                             if (command == "") break;
                             command = command.TrimEnd(new[] { '\n', '\r', ' ' });
-                            /*this.Send(newclient, Convert.ToString(System.Convert.ToChar(8)));
-                            this.Send(newclient, Convert.ToString(System.Convert.ToChar(27)));
-                            this.Send(newclient, "[2K");
-                            this.Send(newclient, "\r\n");
-                            this.Send(newclient, Convert.ToString(System.Convert.ToChar(27)));
-                            this.Send(newclient, "[1A");
-                            this.Send(newclient, ">"+command+"\r\n");*/
                             if(newclient.options["redrawcmd"] == "true")
                                 newclient.Send(kRCONUtils.Console_Redrawcommand(command));
                             if (command == "quit") break;
@@ -123,7 +116,7 @@ namespace kRCONPlugin
                             if(command == "login")
                             {
                                 if (newclient.identified)
-                                    newclient.Send("Notice: You are already logged in!\r\n");
+                                    newclient.Send("Notice: You are already logged in!");
                                 else
                                     newclient.Send("Syntax: login <password>");
                                 continue;
@@ -132,7 +125,7 @@ namespace kRCONPlugin
                             {
                                 if(newclient.identified)
                                 {
-                                    newclient.Send("Notice: You are already logged in!\r\n");
+                                    newclient.Send("Notice: You are already logged in!");
                                     continue;
                                 }
                                 else
@@ -140,13 +133,13 @@ namespace kRCONPlugin
                                     if(command.Split(new[]{' '})[1] == this.Password)
                                     {
                                         newclient.identified = true;
-                                        newclient.Send("Success: You have logged in!\r\n");
+                                        newclient.Send("Success: You have logged in!");
                                         kRCONUtils.Rocket_Log("Client #" + newclient.uniqueID + " has logged in!");
                                         continue;
                                     }
                                     else
                                     {
-                                        newclient.Send("Error: Invalid password!\r\n");
+                                        newclient.Send("Error: Invalid password!");
                                         kRCONUtils.Rocket_Log("Client #" + newclient.uniqueID + " has failed to log in.");
                                         break;
                                     }
@@ -178,7 +171,7 @@ namespace kRCONPlugin
                             }
                             if(!newclient.identified)
                             {
-                                newclient.Send("Error: You have not logged in yet!\r\n");
+                                newclient.Send("Error: You have not logged in yet!");
                                 continue;
                             }
                             kRCONUtils.Rocket_Log("Client #" + newclient.uniqueID + " has executed command \"" + command + "\"");

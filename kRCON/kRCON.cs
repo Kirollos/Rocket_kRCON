@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Rocket.API;
 using Rocket.Unturned;
+using Rocket.Unturned.Logging;
 using Rocket.Unturned.Plugins;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
@@ -25,7 +26,7 @@ namespace kRCONPlugin
     public class kRCON : RocketPlugin<kRCONConfig>
     {
         public static kRCON dis;
-        kRCONCore rcon = null;
+        RCONServer rcon = null;
         public List<string> docommand = new List<string>() { };
         public static ConsoleWriter __console;
         public bool ready = false;
@@ -37,14 +38,14 @@ namespace kRCONPlugin
             ready = false;
             if (!this.Configuration.Enabled)
             {
-                Rocket.Unturned.Logging.Logger.Log("kRCON is set to disabled.");
+                Logger.Log("kRCON is set to disabled.");
                 return;
             }
 
             Rocket.Unturned.Events.RocketServerEvents.OnServerShutdown += RocketServerEvents_OnServerShutdown;
             
-            Rocket.Unturned.Logging.Logger.Log("kRCON is set to enabled.");
-            Rocket.Unturned.Logging.Logger.Log("Initializing....");
+            Logger.Log("kRCON is set to enabled.");
+            Logger.Log("Initializing....");
 
             int maxcons;
             if (this.Configuration.maxconnections > 50 || this.Configuration.maxconnections < 1)
@@ -52,7 +53,7 @@ namespace kRCONPlugin
             else
                 maxcons = this.Configuration.maxconnections;
 
-            rcon = new kRCONCore(
+            rcon = new RCONServer(
                 this.Configuration.Port == 0 ? (short)Steam.port : this.Configuration.Port, 
                 this.Configuration.Password, 
                 this.Configuration.BindIP, 
@@ -61,13 +62,13 @@ namespace kRCONPlugin
                 );
             if(rcon.Enabled)
             {
-                Rocket.Unturned.Logging.Logger.Log("Loaded!");
-                Rocket.Unturned.Logging.Logger.Log("Using Port: " + (this.Configuration.Port == 0 ? (short)Steam.port : this.Configuration.Port));
-                Rocket.Unturned.Logging.Logger.Log("Maximum connections set to " + maxcons);
+                Logger.Log("Loaded!");
+                Logger.Log("Using Port: " + (this.Configuration.Port == 0 ? (short)Steam.port : this.Configuration.Port));
+                Logger.Log("Maximum connections set to " + maxcons);
             }
             else
             {
-                Rocket.Unturned.Logging.Logger.LogError("Failed!");
+                Logger.LogError("Failed!");
                 rcon.Destruct();
             }
             __stdout = Console.Out;
@@ -86,17 +87,14 @@ namespace kRCONPlugin
                 foreach(var leclient in rcon.Clients)
                 {
                     string[] param = e.Value.Trim(new[] { '\r', '\n' }).TrimEnd(new[] { '\t' }).Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    //rcon.Send(leclient, e.Value + "\r\n");
                     foreach(var str in param)
                     {
                         if (!leclient.identified) continue;
                         if (str.Contains("***kRCON***"))
                             continue;
-                        //leclient.Send(str /*+ "\r\n"*/);
                         leclient.Send(str.Trim(new[] { '\r', '\n' }).TrimEnd(new[] { '\t' }), true);
                         leclient.Send("\r\n");
                     }
-                    //leclient.Send("\r\n");
                 }
             }
         }
@@ -156,7 +154,7 @@ namespace kRCONPlugin
 
         public static void Rocket_Log(string text)
         {
-            Rocket.Unturned.Logging.Logger.Log("***kRCON*** " + text);
+            Logger.Log("***kRCON*** " + text);
             return;
         }
     }

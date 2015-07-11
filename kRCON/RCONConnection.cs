@@ -22,16 +22,16 @@ using SDG;
 
 namespace kRCONPlugin
 {
-    public class kRCONClient
+    public class RCONConnection
     {
         public TcpClient client;
         public bool identified;
-        public kRCONCore listenerc;
-        public Thread rthread;
+        private RCONServer listenerc;
+        private Thread rthread;
         public int uniqueID = -1;
         public Dictionary<string, string> options;
 
-        public kRCONClient(TcpClient _client, kRCONCore _core)
+        public RCONConnection(TcpClient _client, RCONServer _core)
         {
             client = _client;
             listenerc = _core;
