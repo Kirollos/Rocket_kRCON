@@ -30,18 +30,22 @@ namespace kRCONPlugin
         private Thread rthread;
         public int uniqueID = -1;
         public Dictionary<string, string> options;
+        private DateTime connection_time;
+        public bool alive;
 
         public RCONConnection(TcpClient _client, RCONServer _core)
         {
             client = _client;
             listenerc = _core;
             identified = false;
+            alive = true;
 
             options = new Dictionary<string, string>()
             {
                 //{"colours", "true"}, // Won't even going to bother adding it for now
                 {"redrawcmd", "true"}
             };
+            connection_time = DateTime.Now;
         }
 
         public void SendThread(ThreadStart watdo)
@@ -71,8 +75,19 @@ namespace kRCONPlugin
             return;
         }
 
+        public void GracefulClose()
+        {
+            this.client.GetStream().Close(1);
+            this.alive = false;
+            return;
+        }
+
         public string IPPort { get { return this.client.Client.RemoteEndPoint.ToString(); } }
         public string IP { get { return IPPort.Split(':')[0]; } }
         public string Port { get { return IPPort.Split(':')[1]; } }
+        public string OnlineFor { get { 
+            TimeSpan diff = DateTime.Now.Subtract(this.connection_time);
+            return String.Format("{0} hours, {1} minutes and {2} seconds", diff.Hours, diff.Minutes, diff.Seconds);
+        } }
     }
 }

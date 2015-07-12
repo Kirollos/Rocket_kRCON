@@ -26,7 +26,7 @@ namespace kRCONPlugin
     public class kRCON : RocketPlugin<kRCONConfig>
     {
         public static kRCON dis;
-        RCONServer rcon = null;
+        public RCONServer rcon = null;
         public List<string> docommand = new List<string>() { };
         public static ConsoleWriter __console;
         public bool ready = false;

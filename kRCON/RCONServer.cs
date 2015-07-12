@@ -103,7 +103,7 @@ namespace kRCONPlugin
                     
                         string command = "";
 
-                        while(newclient.client.Client.Connected)
+                        while(newclient.client.Client.Connected && newclient.alive)
                         {
                             Thread.Sleep(100);
                             command = newclient.Read();
@@ -238,6 +238,16 @@ namespace kRCONPlugin
             byte[] data = new UTF8Encoding().GetBytes(text);
 
             client.GetStream().Write(data, 0, text.Length);
+        }
+
+        public RCONConnection GetClientFromuID(int uID)
+        {
+            foreach(var client in Clients)
+            {
+                if (client.uniqueID == uID)
+                    return client;
+            }
+            return null;
         }
     }
     
