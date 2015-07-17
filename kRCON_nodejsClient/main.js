@@ -72,6 +72,7 @@ sock.on('connection', function(socket){
 		rcon = null;
 	});
 	socket.on('on-send', function(data){
+		if(rcon == null) return;
 		console.log("Client ("+socket.handshake.address+") has executed command '"+data.cmd+"'");
 		rcon.write(data.cmd + "\r\n");
 	});

@@ -43,6 +43,7 @@ $(document).ready(function(){
 	    socket.on('rip', function()
 	    {
 	    	alert("Server closed your RCON connection.");
+	    	$("body").terminal().disable(); // why not
 	    });
 
   });
